@@ -9,4 +9,21 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
+  
+  <servlet>
+    <servlet-name>CasAnalyticClient</servlet-name>
+    <servlet-class>
+        com.vaadin.server.VaadinServlet
+    </servlet-class>
+
+    <init-param>
+      <param-name>CasAnalyticUI</param-name>
+      <param-value>com.ex.myprj.MyUI</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CasAnalyticClient</servlet-name>
+    <url-pattern>/*</url-pattern>
+ </servlet-mapping>
+ 
 </web-app>

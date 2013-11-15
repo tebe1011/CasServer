@@ -66,4 +66,22 @@ public class Load {
 			e.printStackTrace();
 		}
 	}
+	
+	public void createIndexDateDay(Connection con) {
+		try {
+			con.createStatement().executeUpdate(
+					"CREATE INDEX IDXDATEDAY ON DATA(DateDay);");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void createIndexOTyp(Connection con) {
+		try {
+			con.createStatement().executeUpdate(
+					"CREATE INDEX IDXOTYP ON DATA(OTyp);");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }

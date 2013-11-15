@@ -35,6 +35,7 @@ public class JerseyClient implements Serializable {
 	static final String URIStep3 = "http://172.24.60.216:8080/CasAnalyticServer/Extract/Step3";
 	static final String URIStep4 = "http://172.24.60.216:8080/CasAnalyticServer/Extract/Step4";
 	static final String URIStep5 = "http://172.24.60.216:8080/CasAnalyticServer/Extract/Step5";
+	static final String URIUSERDATA = "http://172.24.60.216:8080/CasAnalyticServer/Extract/UserData";
 
 	private WebResource webResource;
 	private Client client;
@@ -64,10 +65,16 @@ public class JerseyClient implements Serializable {
 		return clientresponse.getEntity(String.class);
 	}
 	
-	public String doGetRequestStep4(JSONObject value) {
+	public JSONObject doGetRequestStep4(JSONObject value) {
 		webResource = client.resource(URIStep4);
 		ClientResponse clientresponse = webResource.post(ClientResponse.class, value);
-		return "";
+		return clientresponse.getEntity(JSONObject.class);
+	}
+	
+	public String requestUserData(String value) {
+		webResource = client.resource(URIUSERDATA);
+		ClientResponse clientresponse = webResource.post(ClientResponse.class, value);
+		return clientresponse.getEntity(String.class);
 	}
 
 	public WebResource getWebResource() {

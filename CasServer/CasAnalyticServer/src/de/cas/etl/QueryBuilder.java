@@ -95,13 +95,28 @@ public class QueryBuilder {
 		csvBuilder.buildDictionarieWithOID("SysUser", result);
 	}
 	
-	public void buildObjektData(Connection con, String table, String type, String day) {
+	public void createClientUser(Connection con) {
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		try {
+			Statement statement = con.createStatement();
+			String query = "SELECT UserNAME, OID FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser]";
+			ResultSet rsSET = statement.executeQuery(query);
+			while(rsSET.next()) {
+				result.add(new String[]{rsSET.getString(1), rsSET.getString(2)});
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		csvBuilder.buildDictionarieWithOID("ClientUser", result);
+	}
+	
+	public void buildObjektData(Connection con, String table, String type, String day, String n) {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		try {
 			Statement statement = con.createStatement();
 			String query = "SELECT S1.OID, " +
 					"DATEDIFF(DAY, '1.1.1990', E."+day+") AS 'Date', " +
-					"3 AS Typ, " +
+					""+n+" AS Typ, " +
 					"S2.OID, " +
 					"A2.gwIsCompany, " +
 					"A2.gwIsContact, " +
@@ -126,7 +141,7 @@ public class QueryBuilder {
 					"" +
 					"SELECT S1.OID, " +
 					"DATEDIFF(DAY, '1.1.1990', E."+day+") AS 'Date', " +
-					"3 AS Typ, " +
+					""+n+" AS Typ, " +
 					"S2.OID, " +
 					"A2.gwIsCompany, " +
 					"A2.gwIsContact, " +
@@ -159,13 +174,13 @@ public class QueryBuilder {
 		csvBuilder.buildTableRelation(table, result);
 	}
 	
-	public void buildDataWhichGoesOverADay(Connection con, String table, String type) {
+	public void buildDataWhichGoesOverADay(Connection con, String table, String type, String n) {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		try {
 			Statement statement = con.createStatement();
 			String query = "SELECT S1.OID, " +
 					"DATEDIFF(DAY, '1.1.1990', E.start_dt) AS 'Date', " +
-					"3 AS Typ, " +
+					""+n+" AS Typ, " +
 					"S2.OID, " +
 					"A2.gwIsCompany, " +
 					"A2.gwIsContact, " +
@@ -185,13 +200,14 @@ public class QueryBuilder {
 					"JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID " +
 					"WHERE (R.TableSign2 = '"+type+"') " +
 					"AND ER.OID > 0 " +
+					"AND S1.OID NOT LIKE S2.OID " +
 					"AND DATEDIFF(d, E.start_dt, E.End_dt) > 1 AND DATEDIFF(d, E.start_dt, E.End_dt) < 30 " +
 					"" +
 					"UNION ALL " +
 					"" +
 					"SELECT S1.OID, " +
 					"DATEDIFF(DAY, '1.1.1990', E.start_dt) AS 'Date', " + 
-					"3 AS Typ, " +
+					""+n+" AS Typ, " +
 					"S2.OID, " +
 					"A2.gwIsCompany, " +
 					"A2.gwIsContact, " +
@@ -211,6 +227,7 @@ public class QueryBuilder {
 					"JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID " +
 					"WHERE (R.TableSign2 = '"+type+"') " +
 					"AND ER.OID < 0 " +
+					"AND S1.OID NOT LIKE S2.OID " +
 					"AND DATEDIFF(d, E.start_dt, E.End_dt) > 1 AND DATEDIFF(d, E.start_dt, E.End_dt) < 30";
 			ResultSet rsSET = statement.executeQuery(query);
 			while(rsSET.next()) {
@@ -224,13 +241,13 @@ public class QueryBuilder {
 		csvBuilder.buildTableRelation("Splitted_"+table, result);
 	}
 	
-	public void buildAppointmentTimeShifts(Connection con) {
+	public void buildAppointmentTimeShifts(Connection con, String n) {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		try {
 			Statement statement = con.createStatement();
 			String query = "SELECT S1.OID, " +
 					"DATEDIFF(DAY, '1.1.1990', replace(C.OldFieldValue, ',', ' ')) AS 'Date', " +
-					"3 AS Typ, " +
+					""+n+" AS Typ, " +
 					"S2.OID, " +
 					"A2.gwIsCompany, " +
 					"A2.gwIsContact, " +
@@ -252,6 +269,7 @@ public class QueryBuilder {
 					"AND C.TableName = 'APPOINTMENT' " +
 					"AND C.FieldName = 'START_DT' " +
 					"AND ER.OID > 0	" +
+					"AND S1.OID NOT LIKE S2.OID " +
 					"AND C.ChangeType = 'U'	" +
 					"AND convert(varchar, C.UpdateTimestamp, 21) > replace(C.OldFieldValue, ',', ' ') " +
 					"AND convert(varchar, C.UpdateTimestamp, 21) < replace(C.NewFieldValue, ',', ' ') " +
@@ -261,7 +279,7 @@ public class QueryBuilder {
 					" " +
 					"SELECT S1.OID, " +
 					"DATEDIFF(DAY, '1.1.1990', replace(C.OldFieldValue, ',', ' ')) AS 'Date', " +
-					"3 AS Typ, " +
+					""+n+" AS Typ, " +
 					"S2.OID, " +
 					"A2.gwIsCompany, " +
 					"A2.gwIsContact, " +
@@ -280,6 +298,7 @@ public class QueryBuilder {
 					"JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON SGM2.MEMBERID = S2.GGUID " +
 					"JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID " +
 					"WHERE (R.TableSign2 = 'APP') AND ER.OID < 0 " +
+					"AND S1.OID NOT LIKE S2.OID " +
 					"AND C.TableName = 'APPOINTMENT' " +
 					"AND C.FieldName = 'START_DT' " +
 					"AND C.ChangeType = 'U' " +
@@ -296,5 +315,21 @@ public class QueryBuilder {
 			e.printStackTrace();
 		}
 		csvBuilder.buildTableRelation("Old_APPOINTMENT", result);
+	}
+	
+	public String checkUserInDatabase(Connection con, String username) {
+		String id = "null";
+		try {
+		Statement statement = con.createStatement();
+		String query = "SELECT id FROM D_SysUser WHERE name = '"+username.toUpperCase()+"'";
+		ResultSet rsSET = statement.executeQuery(query);
+			while(rsSET.next()) {
+				id = rsSET.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return id;
 	}
 }

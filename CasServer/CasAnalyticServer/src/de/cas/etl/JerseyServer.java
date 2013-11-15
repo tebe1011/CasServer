@@ -39,18 +39,19 @@ public class JerseyServer {
 		dictionarieBuilder.createCountry1Dictionarie(jdbcConnectorMSSQL.getCon());
 		dictionarieBuilder.createGroupDictionarie(jdbcConnectorMSSQL.getCon());
 		dictionarieBuilder.createSysUserDictionarie(jdbcConnectorMSSQL.getCon());
+		dictionarieBuilder.createClientUser(jdbcConnectorMSSQL.getCon());
 		
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "DOCUMENT", "DOC", "InsertTimestamp");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "EMailStore", "EML", "SendDate");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP", "start_dt");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "start_dt");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC", "InsertTimestamp");
+		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "DOCUMENT", "DOC", "InsertTimestamp", "1");
+		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "EMailStore", "EML", "SendDate", "2");
+		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP", "start_dt", "3");
+		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "start_dt", "4");
+		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC", "InsertTimestamp", "5");
 		
-		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP");
-		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC");
-		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP");
+		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP", "3");
+		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC", "5");
+		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "4");
 		
-		dictionarieBuilder.buildAppointmentTimeShifts(jdbcConnectorMSSQL.getCon());
+		dictionarieBuilder.buildAppointmentTimeShifts(jdbcConnectorMSSQL.getCon(), "3");
 		
 		System.out.println("EXTRACT ENDED");
 		
@@ -85,6 +86,8 @@ public class JerseyServer {
 		loader.loadSysUserGroupData(Database.con);
 		
 		loader.createIndexPersonID(Database.con);
+		loader.createIndexDateDay(Database.con);
+		loader.createIndexOTyp(Database.con);
 		
 		System.out.println("LOAD ENDED");
 		
@@ -113,15 +116,29 @@ public class JerseyServer {
 	}
 
 	@POST @Path("/Step4")
-	@Produces(MediaType.TEXT_HTML)
-	public String post(JSONObject content, @Context UriInfo uriInfo, @Context HttpHeaders headers) {
+	@Produces(MediaType.APPLICATION_JSON)
+	public JSONObject post(JSONObject content, @Context UriInfo uriInfo, @Context HttpHeaders headers) {
 
-		System.out.println(content);
-		logik.buildQuery(Database.con, content);
+		JSONObject json = logik.buildQuery(Database.con, content);
 		
-		return null;
+		return json;
 	}
 
+	@POST @Path("/UserData")
+	@Produces(MediaType.TEXT_HTML)
+	public String requestUserData(String content, @Context UriInfo uriInfo, @Context HttpHeaders headers) {
+		
+		String result = "";
+		
+		System.out.println("GET USER DATA STARTED");
+		
+		result = dictionarieBuilder.checkUserInDatabase(Database.con, content);
+		
+		System.out.println("GET USER DATA  ENDED");
+		
+		return result;
+	}
+	
 	@PUT
 	@Produces(MediaType.TEXT_HTML)
 	public String put(String content, @Context UriInfo uriInfo, @Context HttpHeaders headers) {

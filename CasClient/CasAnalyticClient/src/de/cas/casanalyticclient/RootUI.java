@@ -3,7 +3,11 @@ package de.cas.casanalyticclient;
 import java.awt.MultipleGradientPaint;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import com.vaadin.data.Property.ValueChangeListener;
@@ -38,6 +42,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -83,11 +88,18 @@ public class RootUI extends VerticalLayout {
 	private Slider sl_opportunitys;
 
 	private OptionGroup og_Groups;
+
+	private TextArea resultArea;
 	
 	private JerseyClient restClient;
+	
+	private String UserID;
+	
+	private CasAnalyticUI ui;
 
-	public RootUI() {
+	public RootUI(CasAnalyticUI c) {
 		super();
+		ui = c;
 		buildLoginView(false);
 		restClient = new JerseyClient();
 	}
@@ -123,6 +135,30 @@ public class RootUI extends VerticalLayout {
 		container2.setWidth("300px");
 		container.addComponent(container2);
 
+		Button button3 = new Button("Load Data");
+		button3.addClickListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				restClient.doGetRequestStep3();
+			}
+		});
+		container2.addComponent(button3);
+		
+		Button button = new Button("Extract Data");
+		button.addClickListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				restClient.doGetRequestStep1();
+			}
+		});
+		container2.addComponent(button);
+
+		Button button2 = new Button("Transform Data");
+		button2.addClickListener(new Button.ClickListener() {
+			public void buttonClick(ClickEvent event) {
+				restClient.doGetRequestStep2();
+			}
+		});
+		container2.addComponent(button2);
+		
 		HorizontalLayout labels = new HorizontalLayout();
 		labels.setWidth("100%");
 		labels.setMargin(true);
@@ -166,11 +202,21 @@ public class RootUI extends VerticalLayout {
 		signin.addClickListener(new ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
-				if (username.getValue() != null && username.getValue().equals("")
-						&& password.getValue() != null && password.getValue().equals("")) {
-					signin.removeShortcutListener(enter);
+				
+				String queryResult = restClient.requestUserData(username.getValue());
+				
+				if(!queryResult.equals("null")) {
+					UserID = queryResult;
 					buildMainView();
-				} else {
+				}
+//				
+//				if (username.getValue() != null && username.getValue().equals("")
+//						&& password.getValue() != null && password.getValue().equals("")) {
+//					signin.removeShortcutListener(enter);
+//
+//					UserID = username.getValue();
+//					buildMainView();
+				 else {
 					if (loginPanel.getComponentCount() > 2) {
 						// Remove the previous error message
 						loginPanel.removeComponent(loginPanel.getComponent(2));
@@ -214,6 +260,14 @@ public class RootUI extends VerticalLayout {
 		contentLayout.addComponent(frame);
 		frame.addComponent(menuBar);
 
+//		Button button3 = new Button("Load Data");
+//		button3.addClickListener(new Button.ClickListener() {
+//			public void buttonClick(ClickEvent event) {
+//				restClient.doGetRequestStep3();
+//			}
+//		});
+//		menuBar.addComponent(button3);
+
 		menuBar.addComponent(createIsEmployee());
 		menuBar.addComponent(createIsCompany());
 		menuBar.addComponent(createPerson());
@@ -230,10 +284,10 @@ public class RootUI extends VerticalLayout {
 		menuBar.addComponent(createMaxikmalNumbers());
 		menuBar.addComponent(creatButton());
 
-		TextArea textArea = new TextArea();
-		textArea.setWidth("200px");
-		textArea.setHeight("100%");
-		frame.addComponent(textArea);
+		resultArea = new TextArea();
+		resultArea.setWidth("200px");
+		resultArea.setHeight("100%");
+		frame.addComponent(resultArea);
 
 		// content.addComponent(new VaadinChart());
 	}
@@ -383,16 +437,11 @@ public class RootUI extends VerticalLayout {
 	private HorizontalLayout createGroups() {
 
 		og_Groups = new OptionGroup();
-		og_Groups.addItem("CAS Mitarbeiter");
-		og_Groups.addItem("CAS Führungskräfte");
-		og_Groups.addItem("CAS Geschäftsleitung");
-		og_Groups.addItem("CAS 123");
-		og_Groups.addItem("CAS 1234");
-		og_Groups.addItem("CAS 12345");
-		og_Groups.addItem("CAS 123456");
-		og_Groups.addItem("CAS test1");
-		og_Groups.addItem("CAS test12");
-		og_Groups.addItem("CAS test123");
+		
+		for(Entry<String, String> entry : CasAnalyticUI.sysGroup.entrySet()) {
+			og_Groups.addItem(entry.getValue());
+		}
+		
 		og_Groups.setEnabled(false);
 		og_Groups.setMultiSelect(true);
 
@@ -429,7 +478,7 @@ public class RootUI extends VerticalLayout {
 		df_start.setCaption("Start");
 		df_start.setValue(new Date());
 		df_start.setImmediate(true);
-//		df_start.setTimeZone(TimeZone.getTimeZone("UTC"));
+		// df_start.setTimeZone(TimeZone.getTimeZone("UTC"));
 		df_start.setLocale(Locale.getDefault());
 		df_start.setResolution(Resolution.MINUTE);
 		df_start.setDateFormat("dd-MM-yyyy HH:mm");
@@ -444,6 +493,7 @@ public class RootUI extends VerticalLayout {
 		});
 
 		tf_IntervallStart = new IntegerField();
+		tf_IntervallStart.setValue("0");
 
 		HorizontalLayout container = new HorizontalLayout();
 		container.addComponent(df_start);
@@ -458,7 +508,7 @@ public class RootUI extends VerticalLayout {
 		df_end.setCaption("Ende");
 		df_end.setValue(new Date());
 		df_end.setImmediate(true);
-//		df_end.setTimeZone(TimeZone.getTimeZone("UTC"));
+		// df_end.setTimeZone(TimeZone.getTimeZone("UTC"));
 		df_end.setLocale(Locale.getDefault());
 		df_end.setResolution(Resolution.MINUTE);
 		df_end.setDateFormat("dd-MM-yyyy HH:mm");
@@ -472,6 +522,7 @@ public class RootUI extends VerticalLayout {
 		});
 
 		tf_IntervalLEnd = new IntegerField();
+		tf_IntervalLEnd.setValue("0");
 
 		HorizontalLayout container = new HorizontalLayout();
 		container.addComponent(df_end);
@@ -669,6 +720,7 @@ public class RootUI extends VerticalLayout {
 
 		tf_MaxPerson = new IntegerField();
 		tf_MaxPerson.setCaption("Maximale Ergebnisse");
+		tf_MaxPerson.setValue("10");
 
 		HorizontalLayout container = new HorizontalLayout();
 		container.addComponent(tf_MaxPerson);
@@ -700,6 +752,9 @@ public class RootUI extends VerticalLayout {
 
 				JSONObject obj = new JSONObject();
 				try {
+					
+					obj.put("UserID", UserID);
+					
 					obj.put("CheckBox_isEmployee", cb_isEmployee.getValue());
 					obj.put("CheckBox_isCompany", cb_isFirm.getValue());
 					obj.put("CheckBox_isCompanyAndContact", cb_isFirmAndContact.getValue());
@@ -731,7 +786,18 @@ public class RootUI extends VerticalLayout {
 
 					obj.put("OptionGroup_Group", og_Groups.getValue());
 
-					restClient.doGetRequestStep4(obj);
+					JSONObject result = restClient.doGetRequestStep4(obj);
+					Iterator<?> keys = result.keys();
+					String text = "";
+					
+					while (keys.hasNext()) {
+						String key = (String) keys.next();
+//						if (result.get(key) instanceof Integer) {
+							text += CasAnalyticUI.sysUser.get(key) + " : " + result.get(key) + "\r\n";
+//						}
+					}
+					
+					resultArea.setValue(text);
 
 				} catch (JSONException e) {
 					e.printStackTrace();

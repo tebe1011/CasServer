@@ -16,7 +16,7 @@ public class SchemaBuilder {
 		Connection conn = ds.getConnection();
 		conn.createStatement().executeUpdate("CREATE TABLE data ( " +
 				"userID SMALLINT NOT NULL, " +
-				"Date INT NOT NULL, " +
+				"DateDay INT NOT NULL, " +
 				"OTyp TINYINT NOT NULL, " +
 				"LinkedPersonID SMALLINT NOT NULL, " +
 				"isCompany TINYINT NOT NULL, " +
@@ -38,6 +38,11 @@ public class SchemaBuilder {
 				" )");
 		
 		conn.createStatement().executeUpdate("CREATE TABLE D_SysUser ( " +
+				"id SMALLINT NOT NULL, " +
+				"name VARCHAR(40) NOT NULL, " +
+				" )");
+		
+		conn.createStatement().executeUpdate("CREATE TABLE ClientUser ( " +
 				"id SMALLINT NOT NULL, " +
 				"name VARCHAR(40) NOT NULL, " +
 				" )");
