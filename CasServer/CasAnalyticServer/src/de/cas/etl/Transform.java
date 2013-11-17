@@ -56,7 +56,8 @@ public class Transform {
 		Collections.sort(result, new Comparator<String[]>() {
 			@Override
 			public int compare(String[] arg0, String[] arg1) {
-				return Integer.parseInt(arg0[0]) - Integer.parseInt(arg1[0]);
+				int cmp = Integer.parseInt(arg0[0]) - Integer.parseInt(arg1[0]);
+				return cmp;
 			}
 		});
 		try {
@@ -135,6 +136,17 @@ public class Transform {
 				--i;
 			}
 		}
+		
+		Collections.sort(mainData, new Comparator<String[]>() {
+			@Override
+			public int compare(String[] arg0, String[] arg1) {
+				int cmp = Integer.parseInt(arg0[0]) - Integer.parseInt(arg1[0]);
+				if(cmp == 0) {
+					cmp  = Integer.parseInt(arg0[1]) - Integer.parseInt(arg1[1]);
+				}
+				return cmp;
+			}
+		});
 		
 		try {
 			File file = new File(transformPath + "reunited_sorted_replaced.csv");
