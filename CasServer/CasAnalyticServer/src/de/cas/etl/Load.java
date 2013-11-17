@@ -58,10 +58,19 @@ public class Load {
 		}
 	}
 	
+	public void loadClientUserData(Connection con) {
+		try {
+			con.createStatement().executeUpdate(
+					"INSERT INTO ClientUser SELECT * FROM CSVREAD('" + extractPath + "ClientUser.csv');");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void createIndexPersonID(Connection con) {
 		try {
 			con.createStatement().executeUpdate(
-					"CREATE INDEX IDXPERSONID ON DATA(userID);");
+					"CREATE HASH INDEX IDXPERSONID ON DATA(userID);");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -70,7 +79,7 @@ public class Load {
 	public void createIndexDateDay(Connection con) {
 		try {
 			con.createStatement().executeUpdate(
-					"CREATE INDEX IDXDATEDAY ON DATA(DateDay);");
+					"CREATE INDEX IDXDATEDAY ON DATA(userID, DateDay);");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -79,7 +88,7 @@ public class Load {
 	public void createIndexOTyp(Connection con) {
 		try {
 			con.createStatement().executeUpdate(
-					"CREATE INDEX IDXOTYP ON DATA(OTyp);");
+					"CREATE INDEX IDXOTYP ON DATA(userID, OTyp);");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

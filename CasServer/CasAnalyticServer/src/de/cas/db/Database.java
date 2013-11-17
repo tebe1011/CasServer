@@ -7,11 +7,14 @@ import javax.sql.DataSource;
 
 import org.h2.jdbcx.JdbcConnectionPool;
 
+import de.cas.etl.Load;
+
 public class Database {
 	
 	private DataSource dataSource;
 	private SchemaBuilder schemaBuilder;
 	public static Connection con;
+	private Load loader;
 
 	public Database() throws SQLException {
 
@@ -20,6 +23,21 @@ public class Database {
 		this.con = dataSource.getConnection();
 		System.out.println("H2-DATABASE: STARTED.");
 		schemaBuilder.createSchema(dataSource);
+		this.loader = new Load();
+		
+		System.out.println("LOAD STARTED");
+		
+		loader.loadMainData(Database.con);
+		loader.loadTownData(Database.con);
+		loader.loadCountryData(Database.con);
+		loader.loadSysUserData(Database.con);
+		loader.loadSysUserGroupData(Database.con);
+		loader.loadClientUserData(Database.con);
+		
+		loader.createIndexPersonID(Database.con);
+		loader.createIndexDateDay(Database.con);
+		
+		System.out.println("LOAD ENDED");
 	}
 
 	public DataSource getDataSource() {

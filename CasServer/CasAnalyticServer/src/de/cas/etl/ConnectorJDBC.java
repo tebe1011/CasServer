@@ -14,16 +14,16 @@ public class ConnectorJDBC {
 	
 	public ConnectorJDBC() {
 		
-		try {
-			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		try {
-			setCon(DriverManager.getConnection(URL));
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		}
+//		try {
+//			setCon(DriverManager.getConnection(URL));
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	public Connection getCon() {

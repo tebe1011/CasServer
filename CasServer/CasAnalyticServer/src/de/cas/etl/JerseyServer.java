@@ -84,6 +84,7 @@ public class JerseyServer {
 		loader.loadCountryData(Database.con);
 		loader.loadSysUserData(Database.con);
 		loader.loadSysUserGroupData(Database.con);
+		loader.loadClientUserData(Database.con);
 		
 		loader.createIndexPersonID(Database.con);
 		loader.createIndexDateDay(Database.con);

@@ -15,6 +15,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -109,16 +110,21 @@ public class Logik {
 		String query = "";
 		
 		if(startDiff != 0 || endDiff != 0) {
-			
 			query = "" +
-					"SELECT (SUM ( InnerTable.CountType ) * SUM(InnerTable.GewSumm)) AS Qsum, InnerTable.LinkedPersonID " +
-						"FROM ( SELECT (CASE " +
-									"WHEN OTyp = 1 THEN (COUNT (OTyp))*"+wDoc+" " +
-									"WHEN OTyp = 2 THEN (COUNT (OTyp))*"+wEml+" " +
-									"WHEN OTyp = 3 THEN (COUNT (OTyp))*"+wApp+" " +
-									"WHEN OTyp = 4 THEN (COUNT (OTyp))*"+wGwop+" " +
-									"WHEN OTyp = 5 THEN (COUNT (OTyp))*"+wPhc+" END) AS CountType " +
-									",  OrigTable.LinkedPersonID, SUM(OrigTable.GEW) AS GewSumm " +
+					"SELECT SUM ( InnerTable.DOC + InnerTable.EML + InnerTable.APP + InnerTable.OPP +InnerTable.PHC) AS Qsum " +
+					", SUM(InnerTable.DOC) AS DOC " +
+					", SUM(InnerTable.EML) AS EML " +
+					", SUM(InnerTable.APP) AS APP " +
+					", SUM(InnerTable.OPP) AS OPP " +
+					", SUM(InnerTable.PHC) AS PHC " +
+					", InnerTable.LinkedPersonID  " +
+						"FROM ( SELECT (CASE WHEN OTyp = 1 THEN (COUNT (OTyp))*"+wDoc+" ELSE  0 END ) AS DOC " +
+							",(CASE WHEN OTyp = 2 THEN (COUNT (OTyp))*"+wEml+" ELSE  0 END ) AS EML " +
+							",(CASE WHEN OTyp = 3 THEN (COUNT (OTyp))*"+wApp+" ELSE  0 END ) AS APP " +
+							",(CASE WHEN OTyp = 4 THEN (COUNT (OTyp))*"+wGwop+" ELSE  0 END ) AS OPP " +
+							",(CASE WHEN OTyp = 5 THEN (COUNT (OTyp))*"+wPhc+" ELSE  0 END ) AS PHC " +
+							", OrigTable.LinkedPersonID " +
+							", SUM(OrigTable.GEW) AS GewSumm " +
 								"FROM (SELECT OTyp, LinkedPersonID, (CASE WHEN DateDay BETWEEN "+startDay+" AND "+startDayPlus+" THEN ((DateDay-"+startDay+")*"+faktorStart+") " +
 										"WHEN DateDay BETWEEN "+endDayPlus+" AND "+endDay+" THEN (("+endDay+"-DateDay)*"+faktorEnd+") ELSE 1 END) AS GEW " +
 												"FROM data WHERE "+where+") AS OrigTable " +
@@ -129,35 +135,94 @@ public class Logik {
 		}
 		else {
 			query = "" +
-					"SELECT SUM ( InnerTable.CountType ) AS Qsum, InnerTable.LinkedPersonID " +
-						"FROM ( SELECT (CASE " +
-									"WHEN OTyp = 1 THEN (COUNT (OTyp))*"+wDoc+" " +
-									"WHEN OTyp = 2 THEN (COUNT (OTyp))*"+wEml+" " +
-									"WHEN OTyp = 3 THEN (COUNT (OTyp))*"+wApp+" " +
-									"WHEN OTyp = 4 THEN (COUNT (OTyp))*"+wGwop+" " +
-									"WHEN OTyp = 5 THEN (COUNT (OTyp))*"+wPhc+" END) AS CountType " +
-									", LinkedPersonID " +
-								"FROM data " +
-								"WHERE " + where +
-								"GROUP BY OTyp , LinkedPersonID) AS InnerTable " + 
-						"GROUP BY InnerTable.LinkedPersonID " +
-						"ORDER BY Qsum DESC " +
-						"LIMIT 0, "+range+" ";
+					"SELECT SUM ( InnerTable.DOC + InnerTable.EML + InnerTable.APP + InnerTable.OPP +InnerTable.PHC) AS Qsum " +
+					", SUM(InnerTable.DOC) AS DOC " +
+					", SUM(InnerTable.EML) AS EML " +
+					", SUM(InnerTable.APP) AS APP " +
+					", SUM(InnerTable.OPP) AS OPP " +
+					", SUM(InnerTable.PHC) AS PHC " +
+					", InnerTable.LinkedPersonID  " +
+									"FROM ( SELECT (CASE WHEN OTyp = 1 THEN (COUNT (OTyp))*"+wDoc+" ELSE  0 END ) AS DOC " +
+												",(CASE WHEN OTyp = 2 THEN (COUNT (OTyp))*"+wEml+" ELSE  0 END ) AS EML " +
+												",(CASE WHEN OTyp = 3 THEN (COUNT (OTyp))*"+wApp+" ELSE  0 END ) AS APP " +
+												",(CASE WHEN OTyp = 4 THEN (COUNT (OTyp))*"+wGwop+" ELSE  0 END ) AS OPP " +
+												",(CASE WHEN OTyp = 5 THEN (COUNT (OTyp))*"+wPhc+" ELSE  0 END ) AS PHC " +
+												", LinkedPersonID " +
+											"FROM data " + 
+											"WHERE " + where +
+											"GROUP BY OTyp , LinkedPersonID) AS InnerTable " +
+									"GROUP BY InnerTable.LinkedPersonID " +
+									"ORDER BY Qsum DESC " +
+									"LIMIT 0, "+range+" ";
 		}
-		
-
+//		else {
+//		
+//		query = "" +
+//				"SELECT (SUM ( InnerTable.CountType ) * SUM(InnerTable.GewSumm)) AS Qsum, InnerTable.LinkedPersonID " +
+//					"FROM ( SELECT (CASE " +
+//								"WHEN OTyp = 1 THEN (COUNT (OTyp))*"+wDoc+" " +
+//								"WHEN OTyp = 2 THEN (COUNT (OTyp))*"+wEml+" " +
+//								"WHEN OTyp = 3 THEN (COUNT (OTyp))*"+wApp+" " +
+//								"WHEN OTyp = 4 THEN (COUNT (OTyp))*"+wGwop+" " +
+//								"WHEN OTyp = 5 THEN (COUNT (OTyp))*"+wPhc+" END) AS CountType " +
+//								",  OrigTable.LinkedPersonID, SUM(OrigTable.GEW) AS GewSumm " +
+//							"FROM (SELECT OTyp, LinkedPersonID, (CASE WHEN DateDay BETWEEN "+startDay+" AND "+startDayPlus+" THEN ((DateDay-"+startDay+")*"+faktorStart+") " +
+//									"WHEN DateDay BETWEEN "+endDayPlus+" AND "+endDay+" THEN (("+endDay+"-DateDay)*"+faktorEnd+") ELSE 1 END) AS GEW " +
+//											"FROM data WHERE "+where+") AS OrigTable " +
+//							"GROUP BY OTyp , LinkedPersonID, OrigTable.GEW) AS InnerTable " + 
+//					"GROUP BY InnerTable.LinkedPersonID " +
+//					"ORDER BY Qsum DESC " +
+//					"LIMIT 0, "+range+" ";
+//		
+//			query = "" +
+//					"SELECT SUM ( InnerTable.CountType ) AS Qsum, InnerTable.LinkedPersonID " +
+//						"FROM ( SELECT (CASE " +
+//									"WHEN OTyp = 1 THEN (COUNT (OTyp))*"+wDoc+" " +
+//									"WHEN OTyp = 2 THEN (COUNT (OTyp))*"+wEml+" " +
+//									"WHEN OTyp = 3 THEN (COUNT (OTyp))*"+wApp+" " +
+//									"WHEN OTyp = 4 THEN (COUNT (OTyp))*"+wGwop+" " +
+//									"WHEN OTyp = 5 THEN (COUNT (OTyp))*"+wPhc+" END) AS CountType " +
+//									", LinkedPersonID " +
+//								"FROM data " +
+//								"WHERE " + where +
+//								"GROUP BY OTyp , LinkedPersonID) AS InnerTable " + 
+//						"GROUP BY InnerTable.LinkedPersonID " +
+//						"ORDER BY Qsum DESC " +
+//						"LIMIT 0, "+range+" ";
+//		}
+	
 		JSONObject result = new JSONObject();
 		try {
 			Statement statement = con.createStatement();
 			ResultSet rsSET = statement.executeQuery(query);
 			while (rsSET.next()) {
-				result.put(rsSET.getString(2), rsSET.getInt(1));
+				JSONArray  container = new JSONArray();
+				container.put(rsSET.getInt(1));
+				container.put(rsSET.getInt(2));
+				container.put(rsSET.getInt(3));
+				container.put(rsSET.getInt(4));
+				container.put(rsSET.getInt(5));
+				container.put(rsSET.getInt(6));
+				result.put(rsSET.getString(7), container);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		
+//		JSONObject result = new JSONObject();
+//		try {
+//			Statement statement = con.createStatement();
+//			ResultSet rsSET = statement.executeQuery(query);
+//			while (rsSET.next()) {
+//				result.put(rsSET.getString(2), rsSET.getInt(1));
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		} catch (JSONException e) {
+//			e.printStackTrace();
+//		}
 		
 		// Aufruf lange dauernder Prozesse
 
@@ -273,7 +338,7 @@ public class Logik {
 				int personID = 0;
 				try {
 					Statement statement = con.createStatement();
-					String query = "SELECT id FROM D_SysUser WHERE name LIKE '" + name + "'";
+					String query = "SELECT id FROM ClientUser WHERE name LIKE '" + name + "'";
 					ResultSet rsSET = statement.executeQuery(query);
 					while (rsSET.next()) {
 						personID = rsSET.getInt(1);
