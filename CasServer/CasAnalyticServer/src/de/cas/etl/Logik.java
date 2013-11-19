@@ -22,7 +22,8 @@ import org.codehaus.jettison.json.JSONObject;
 public class Logik {
 
 	private ArrayList<String> whereStatements = new ArrayList<String>();
-
+	private String whereJoin = "";
+	
 	public Logik() {
 
 	}
@@ -127,7 +128,7 @@ public class Logik {
 							", SUM(OrigTable.GEW) AS GewSumm " +
 								"FROM (SELECT OTyp, LinkedPersonID, (CASE WHEN DateDay BETWEEN "+startDay+" AND "+startDayPlus+" THEN ((DateDay-"+startDay+")*"+faktorStart+") " +
 										"WHEN DateDay BETWEEN "+endDayPlus+" AND "+endDay+" THEN (("+endDay+"-DateDay)*"+faktorEnd+") ELSE 1 END) AS GEW " +
-												"FROM data WHERE "+where+") AS OrigTable " +
+												"FROM "+whereJoin+" data WHERE "+where+") AS OrigTable " +
 								"GROUP BY OTyp , LinkedPersonID, OrigTable.GEW) AS InnerTable " + 
 						"GROUP BY InnerTable.LinkedPersonID " +
 						"ORDER BY Qsum DESC " +
@@ -148,7 +149,7 @@ public class Logik {
 												",(CASE WHEN OTyp = 4 THEN (COUNT (OTyp))*"+wGwop+" ELSE  0 END ) AS OPP " +
 												",(CASE WHEN OTyp = 5 THEN (COUNT (OTyp))*"+wPhc+" ELSE  0 END ) AS PHC " +
 												", LinkedPersonID " +
-											"FROM data " + 
+											"FROM "+whereJoin+" data " + 
 											"WHERE " + where +
 											"GROUP BY OTyp , LinkedPersonID) AS InnerTable " +
 									"GROUP BY InnerTable.LinkedPersonID " +
@@ -419,9 +420,11 @@ public class Logik {
 	}
 
 	private ArrayList<String> createWhereGroup(Connection con, JSONObject json) {
+		
 		ArrayList<String> container = new ArrayList<String>();
 		try {
 			if (json.getBoolean("CheckBox_Group") == true) {
+				whereJoin = "RIGHT JOIN GroupRelation G1 ON LinkedPersonID = G1.OID";
 				if (!json.getString("OptionGroup_Group").equals("[]")) {
 					String value = json.getString("OptionGroup_Group").replace("[", "");
 					value = value.replace("]", "");
@@ -440,7 +443,7 @@ public class Logik {
 							e.printStackTrace();
 						}
 						if (groupID != 0) {
-							container.add("GroupID != " + groupID);
+							container.add("G1.GID != " + groupID);
 						}
 					}
 				}

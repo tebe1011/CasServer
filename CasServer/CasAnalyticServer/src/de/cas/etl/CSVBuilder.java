@@ -86,4 +86,68 @@ public class CSVBuilder {
 			e.printStackTrace();
 		}
 	}
+	
+	public void buildTransformMultipleAppointmentORel(ArrayList<String[]> data) {
+		try {
+			String basePath = System.getProperty("catalina.base") + "/CasAnalyticsData/Transform";
+			File dictionaries = new File(basePath);
+			dictionaries.mkdir();
+			File file = new File(basePath + "/S_APPOINTMENTORel.csv");
+			CSVWriter writer = new CSVWriter(new FileWriter(file));
+			for (int i = 0; i < data.size(); ++i) {
+				writer.writeNext(data.get(i));
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void buildGroupHistory(ArrayList<String[]> data) {
+		try {
+			String basePath = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract";
+			File dictionaries = new File(basePath);
+			dictionaries.mkdir();
+			File file = new File(basePath + "/GroupHistory.csv");
+			CSVWriter writer = new CSVWriter(new FileWriter(file));
+			for (int i = 0; i < data.size(); ++i) {
+				writer.writeNext(data.get(i));
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void buildGGUIDDictionarie(String fileName, ArrayList<String[]> data) {
+		try {
+			String basePath = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract";
+			File dictionaries = new File(basePath);
+			dictionaries.mkdir();
+			File file = new File(basePath + "/" + fileName + ".csv");
+			CSVWriter writer = new CSVWriter(new FileWriter(file));
+			for (int i = 0; i < data.size(); ++i) {
+				writer.writeNext(data.get(i));
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void buildSysUserWithAdress(String fileName, ArrayList<String[]> data) {
+		try {
+			String basePath = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract";
+			File dictionaries = new File(basePath);
+			dictionaries.mkdir();
+			File file = new File(basePath + "/" + fileName + ".csv");
+			CSVWriter writer = new CSVWriter(new FileWriter(file));
+			for (int i = 0; i < data.size(); ++i) {
+				writer.writeNext(data.get(i));
+			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -53,6 +53,14 @@ public class JerseyServer {
 		
 		dictionarieBuilder.buildAppointmentTimeShifts(jdbcConnectorMSSQL.getCon(), "3");
 		
+		dictionarieBuilder.buildGetGroupChanges(jdbcConnectorMSSQL.getCon());
+		dictionarieBuilder.buildUserGGUID(jdbcConnectorMSSQL.getCon());
+		dictionarieBuilder.buildGroupGGUID(jdbcConnectorMSSQL.getCon());
+		
+		dictionarieBuilder.buildSysGroupRelation(jdbcConnectorMSSQL.getCon());
+		
+		dictionarieBuilder.buildSysUserWithAdress(jdbcConnectorMSSQL.getCon());
+		
 		System.out.println("EXTRACT ENDED");
 		
 		return "ETL Prozess";
@@ -64,9 +72,22 @@ public class JerseyServer {
 		
 		System.out.println("TRANSFORM STARTED");
 		
+//		transform.addAdressDataToORelData("DOCUMENT");
+//		transform.addAdressDataToORelData("EMailStore");
+//		transform.addAdressDataToORelData("APPOINTMENT");
+//		transform.addAdressDataToORelData("GWOpportunity");
+//		transform.addAdressDataToORelData("gwPhoneCall");
+		
+//		transform.addAdressDataToORelApp("Old_APPOINTMENTORel");
+//		transform.addAdressDataToORelAppSplitted("Splitted_APPOINTMENTORel");
+//		transform.transformMultipleAppointmentORel();
+		
 		transform.transformMultipleAppointment();
 		transform.reuniteTables();
 		transform.replaceTownAndCountry();
+		transform.replaceTownAndCountrySysUser();
+//		transform.transformGroupHistory();
+//		transform.deleteOrInsertTimeShiftedPeople();
 		
 		System.out.println("TRANSFORM ENDED");
 		
@@ -114,6 +135,44 @@ public class JerseyServer {
 //		System.out.println("GET DATA  ENDED");
 		
 		return respond;
+	}
+	
+	@GET @Path("/Step6")
+	@Produces(MediaType.TEXT_HTML)
+	public String requestTrans(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
+
+		System.out.println("Step6 STARTED");
+		
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "DOCUMENT", "InsertTimestamp", "1");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "EMailStore", "SendDate", "2");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "start_dt", "3");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "start_dt", "4");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "InsertTimestamp", "5");
+		
+//		dictionarieBuilder.build0RelAppointmentMultipleDays(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.build0RelAppointmentDayShifts(jdbcConnectorMSSQL.getCon());
+		
+//		transform.addAdressDataToORelData("DOCUMENT");
+//		transform.addAdressDataToORelData("EMailStore");
+//		transform.addAdressDataToORelData("APPOINTMENT");
+//		transform.addAdressDataToORelData("GWOpportunity");
+//		transform.addAdressDataToORelData("gwPhoneCall");
+//		
+//		transform.addAdressDataToORelApp("Old_APPOINTMENTORel");
+//		transform.addAdressDataToORelAppSplitted("Splitted_APPOINTMENTORel");
+//		transform.transformMultipleAppointmentORel();
+		
+//		dictionarieBuilder.buildGetGroupChanges(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.buildUserGGUID(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.buildGroupGGUID(jdbcConnectorMSSQL.getCon());
+//		
+//		transform.transformGroupHistory();
+		
+//		transform.deleteOrInsertTimeShiftedPeople();
+		
+		System.out.println("Step6 ENDED");
+		
+		return "";
 	}
 
 	@POST @Path("/Step4")

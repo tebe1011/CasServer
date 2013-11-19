@@ -19,12 +19,11 @@ public class SchemaBuilder {
 				"DateDay INT NOT NULL, " +
 				"OTyp TINYINT NOT NULL, " +
 				"LinkedPersonID SMALLINT NOT NULL, " +
-				"isCompany TINYINT NOT NULL, " +
-				"isContact TINYINT NOT NULL, " +
-				"isEmployee TINYINT NOT NULL," +
-				"Town SMALLINT NOT NULL, " +
-				"Country SMALLINT NOT NULL, " +
-				"GroupID SMALLINT NOT NULL, " +
+				"isCompany TINYINT, " +
+				"isContact TINYINT, " +
+				"isEmployee TINYINT," +
+				"Town SMALLINT, " +
+				"Country SMALLINT, " +
 				" )");
 		
 		conn.createStatement().executeUpdate("CREATE TABLE D_Town ( " +
@@ -50,6 +49,11 @@ public class SchemaBuilder {
 		conn.createStatement().executeUpdate("CREATE TABLE D_SysUserGroup ( " +
 				"id SMALLINT NOT NULL, " +
 				"name VARCHAR(40) NOT NULL, " +
+				" )");
+		
+		conn.createStatement().executeUpdate("CREATE TABLE GroupRelation ( " +
+				"oid SMALLINT NOT NULL, " +
+				"gid SMALLINT NOT NULL, " +
 				" )");
 		
 		conn.close();
