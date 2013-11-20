@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -21,11 +22,15 @@ import org.codehaus.jettison.json.JSONObject;
 
 public class Logik {
 
-	private ArrayList<String> whereStatements = new ArrayList<String>();
 	private String whereJoin = "";
+	private Map<String, ArrayList<String>> groupRelation;
+	private CSVReaderWriter csv;
+	private String EPATH = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract/";
+	private String TPATH = System.getProperty("catalina.base") + "/CasAnalyticsData/Transform/";
 	
 	public Logik() {
-
+		this.csv = new CSVReaderWriter();
+		this.groupRelation = csv.readFromCSVFileAsStringStringArrayList(0, EPATH + "SysGroupRelation.csv");
 	}
 
 	public JSONObject buildQuery(Connection con, JSONObject json) {
@@ -91,6 +96,8 @@ public class Logik {
 			e.printStackTrace();
 		}
 		
+		ArrayList<String> whereStatements = new ArrayList<String>();
+		
 		whereStatements.addAll(createWherPersonID(json));
 		whereStatements.addAll(createWhereisEmployee(json));
 		whereStatements.addAll(createWhereisCompany(json));
@@ -102,7 +109,8 @@ public class Logik {
 		whereStatements.addAll(createWhereGroup(con, json));
 		whereStatements.addAll(createWhereDateRange(json));
 
-		String where = buildWhereClausel();
+		
+		String where = buildWhereClausel(whereStatements);
 		long zstVorher;
 		long zstNachher;
 
@@ -227,19 +235,21 @@ public class Logik {
 		
 		// Aufruf lange dauernder Prozesse
 
+		whereJoin = "";
+		
 		zstNachher = System.nanoTime();
 		System.out.println("Zeit benötigt: " + ((zstNachher - zstVorher)/1000) + " us - " + ((zstNachher - zstVorher)/1000/1000) + " ms");
 		
 		return result;
 	}
 
-	private String buildWhereClausel() {
+	private String buildWhereClausel(ArrayList<String> data) {
 		String result = "";
-		for (int i = 0; i < whereStatements.size(); ++i) {
+		for (int i = 0; i < data.size(); ++i) {
 			if (i == 0) {
-				result += " " + whereStatements.get(i) + " ";
+				result += " " + data.get(i) + " ";
 			} else {
-				result += " AND " + whereStatements.get(i) + " ";
+				result += " AND " + data.get(i) + " ";
 			}
 		}
 		return result;
@@ -270,7 +280,7 @@ public class Logik {
 			long startFinal = getDateDiff(dateBeginn, dateStart, TimeUnit.DAYS);
 			long endFinal = getDateDiff(dateBeginn, dateEnd, TimeUnit.DAYS);
 
-			whereStatements.add("(DateDay >= " + startFinal + " AND DateDay <= " + endFinal + ")");
+			container.add("(DateDay >= " + startFinal + " AND DateDay <= " + endFinal + ")");
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
@@ -421,29 +431,22 @@ public class Logik {
 
 	private ArrayList<String> createWhereGroup(Connection con, JSONObject json) {
 		
-		ArrayList<String> container = new ArrayList<String>();
+		ArrayList<String> people = new ArrayList<String>();
 		try {
 			if (json.getBoolean("CheckBox_Group") == true) {
-				whereJoin = "RIGHT JOIN GroupRelation G1 ON LinkedPersonID = G1.OID";
 				if (!json.getString("OptionGroup_Group").equals("[]")) {
 					String value = json.getString("OptionGroup_Group").replace("[", "");
 					value = value.replace("]", "");
 					String[] values = value.split(",");
 					for (int i = 0; i < values.length; ++i) {
-						String name = values[i];
-						int groupID = 0;
-						try {
-							Statement statement = con.createStatement();
-							String query = "SELECT id FROM D_SysUserGroup WHERE name LIKE '" + name + "'";
-							ResultSet rsSET = statement.executeQuery(query);
-							while (rsSET.next()) {
-								groupID = rsSET.getInt(1);
-							}
-						} catch (SQLException e) {
-							e.printStackTrace();
-						}
-						if (groupID != 0) {
-							container.add("G1.GID != " + groupID);
+						ArrayList<String> c = groupRelation.get(values[i]);
+						if(c != null) {
+							for(String s : c) {
+								if(!people.contains(s)) {
+									System.out.println(s);
+									people.add("LinkedPersonID != " + s);
+								}
+							}	
 						}
 					}
 				}
@@ -451,7 +454,7 @@ public class Logik {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return container;
+		return people;
 	}
 
 	public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {

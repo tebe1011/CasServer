@@ -33,6 +33,7 @@ public class Database {
 		loader.loadSysUserData(Database.con);
 		loader.loadSysUserGroupData(Database.con);
 		loader.loadClientUserData(Database.con);
+		loader.loadClientUserData(Database.con);
 		
 		loader.createIndexPersonID(Database.con);
 		loader.createIndexDateDay(Database.con);

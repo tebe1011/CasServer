@@ -28,6 +28,9 @@ public class JerseyServer {
 	private RespondQuery respondQuery = new RespondQuery();
 	private Logik logik = new Logik();
 	
+	private String EPATH = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract/";
+	private String TPATH = System.getProperty("catalina.base") + "/CasAnalyticsData/Transform/";
+	
 	@GET @Path("/Step1")
 	@Produces(MediaType.TEXT_HTML)
 	public String requestStep1(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
@@ -52,13 +55,12 @@ public class JerseyServer {
 		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "4");
 		
 		dictionarieBuilder.buildAppointmentTimeShifts(jdbcConnectorMSSQL.getCon(), "3");
+		dictionarieBuilder.build0RelAppointmentDayShifts(jdbcConnectorMSSQL.getCon());
 		
 		dictionarieBuilder.buildGetGroupChanges(jdbcConnectorMSSQL.getCon());
 		dictionarieBuilder.buildUserGGUID(jdbcConnectorMSSQL.getCon());
 		dictionarieBuilder.buildGroupGGUID(jdbcConnectorMSSQL.getCon());
-		
 		dictionarieBuilder.buildSysGroupRelation(jdbcConnectorMSSQL.getCon());
-		
 		dictionarieBuilder.buildSysUserWithAdress(jdbcConnectorMSSQL.getCon());
 		
 		System.out.println("EXTRACT ENDED");
@@ -72,20 +74,24 @@ public class JerseyServer {
 		
 		System.out.println("TRANSFORM STARTED");
 		
-//		transform.addAdressDataToORelData("DOCUMENT");
-//		transform.addAdressDataToORelData("EMailStore");
-//		transform.addAdressDataToORelData("APPOINTMENT");
-//		transform.addAdressDataToORelData("GWOpportunity");
-//		transform.addAdressDataToORelData("gwPhoneCall");
-		
-//		transform.addAdressDataToORelApp("Old_APPOINTMENTORel");
-//		transform.addAdressDataToORelAppSplitted("Splitted_APPOINTMENTORel");
+//		transform.addAdressToCSV(4, EPATH + "DOCUMENTORel.csv", EPATH + "DOCUMENTORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "EMailStoreORel.csv", EPATH + "EMailStoreORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "APPOINTMENTORel.csv", EPATH + "APPOINTMENTORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "GWOpportunityORel.csv", EPATH + "GWOpportunityORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "gwPhoneCallORel.csv", EPATH + "gwPhoneCallORel_transf.csv");
+//		
+//		transform.addAdressToCSV(4, EPATH + "Old_APPOINTMENTORel.csv", EPATH + "Old_APPOINTMENTORel_transf.csv");
+//		transform.addAdressToCSV(5, EPATH + "Splitted_APPOINTMENTORel.csv", EPATH + "Splitted_APPOINTMENTORel_transf.csv");
 //		transform.transformMultipleAppointmentORel();
 		
-		transform.transformMultipleAppointment();
+//		transform.transformMultipleAppointment();
+		
+//		transform.replaceTownAndCountrySysUserWithAdress();
+//		transform.replaceTownAndCountrySysUserAndGroupWithAdress();
+		
 		transform.reuniteTables();
-		transform.replaceTownAndCountry();
-		transform.replaceTownAndCountrySysUser();
+//		transform.replaceTownAndCountry();
+//		transform.replaceTownAndCountrySysUserWithAdress();
 //		transform.transformGroupHistory();
 //		transform.deleteOrInsertTimeShiftedPeople();
 		
@@ -116,27 +122,6 @@ public class JerseyServer {
 		return "ETL Prozess";
 	}
 	
-	@GET @Path("/Step4")
-	@Produces(MediaType.TEXT_HTML)
-	public String requestStep4(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
-		
-		System.out.println("GET DATA STARTED");
-		
-//		long zstVorher;
-//		long zstNachher;
-//
-//		zstVorher = System.currentTimeMillis();
-		
-		String respond = respondQuery.getRespond(Database.con).toString();
-		
-//		zstNachher = System.currentTimeMillis();
-//		String respond = "Zeit benötigt: " + (zstNachher - zstVorher) + " ms";
-//		
-//		System.out.println("GET DATA  ENDED");
-		
-		return respond;
-	}
-	
 	@GET @Path("/Step6")
 	@Produces(MediaType.TEXT_HTML)
 	public String requestTrans(@Context UriInfo uriInfo, @Context HttpHeaders headers) {
@@ -148,18 +133,24 @@ public class JerseyServer {
 //		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "start_dt", "3");
 //		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "start_dt", "4");
 //		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "InsertTimestamp", "5");
-		
+//		
 //		dictionarieBuilder.build0RelAppointmentMultipleDays(jdbcConnectorMSSQL.getCon());
 //		dictionarieBuilder.build0RelAppointmentDayShifts(jdbcConnectorMSSQL.getCon());
-		
-//		transform.addAdressDataToORelData("DOCUMENT");
-//		transform.addAdressDataToORelData("EMailStore");
-//		transform.addAdressDataToORelData("APPOINTMENT");
-//		transform.addAdressDataToORelData("GWOpportunity");
-//		transform.addAdressDataToORelData("gwPhoneCall");
 //		
-//		transform.addAdressDataToORelApp("Old_APPOINTMENTORel");
-//		transform.addAdressDataToORelAppSplitted("Splitted_APPOINTMENTORel");
+//		transform.addAdressToCSV(4, EPATH + "DOCUMENT.csv", EPATH + "DOCUMENT_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "EMailStore.csv", EPATH + "EMailStore_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "APPOINTMENT.csv", EPATH + "APPOINTMENT_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "GWOpportunity.csv", EPATH + "GWOpportunity_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "gwPhoneCall.csv", EPATH + "gwPhoneCall_transf.csv");
+//		
+//		transform.addAdressToCSV(4, EPATH + "DOCUMENTORel.csv", EPATH + "DOCUMENTORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "EMailStoreORel.csv", EPATH + "EMailStoreORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "APPOINTMENTORel.csv", EPATH + "APPOINTMENTORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "GWOpportunityORel.csv", EPATH + "GWOpportunityORel_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "gwPhoneCallORel.csv", EPATH + "gwPhoneCallORel_transf.csv");
+//		
+//		transform.addAdressToCSV(4, EPATH + "Old_APPOINTMENTORel.csv", EPATH + "Old_APPOINTMENTORel_transf.csv");
+//		transform.addAdressToCSV(5, EPATH + "Splitted_APPOINTMENTORel.csv", EPATH + "Splitted_APPOINTMENTORel_transf.csv");
 //		transform.transformMultipleAppointmentORel();
 		
 //		dictionarieBuilder.buildGetGroupChanges(jdbcConnectorMSSQL.getCon());
@@ -167,9 +158,21 @@ public class JerseyServer {
 //		dictionarieBuilder.buildGroupGGUID(jdbcConnectorMSSQL.getCon());
 //		
 //		transform.transformGroupHistory();
-		
+//		dictionarieBuilder.buildSysUserWithAdress(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.buildSysUserAndGroupWithAdress(jdbcConnectorMSSQL.getCon());
+//		transform.replaceTownAndCountrySysUserWithAdress();
+//		transform.replaceTownAndCountrySysUserAndGroupWithAdress();
 //		transform.deleteOrInsertTimeShiftedPeople();
 		
+//		transform.replaceTownAndCountry(EPATH + "DOCUMENT_transf.csv", EPATH + "DOCUMENT_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "EMailStore_transf.csv", EPATH + "EMailStore_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "APPOINTMENT_transf.csv", EPATH + "APPOINTMENT_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "GWOpportunity_transf.csv", EPATH + "GWOpportunity_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "gwPhoneCall_transf.csv", EPATH + "gwPhoneCall_transf_replaced.csv");
+//		
+//		transform.replaceTownAndCountry(EPATH + "Old_APPOINTMENT.csv", EPATH + "Old_APPOINTMENT_replaced.csv");
+//		transform.replaceTownAndCountry(TPATH + "S_APPOINTMENT.csv", TPATH + "S_APPOINTMENT_replaced.csv");
+		dictionarieBuilder.buildSysGroupRelation(jdbcConnectorMSSQL.getCon());
 		System.out.println("Step6 ENDED");
 		
 		return "";

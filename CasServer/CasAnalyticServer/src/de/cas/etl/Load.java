@@ -67,6 +67,15 @@ public class Load {
 		}
 	}
 	
+	public void loadGroupRelationData(Connection con) {
+		try {
+			con.createStatement().executeUpdate(
+					"INSERT INTO GroupRelation SELECT * FROM CSVREAD('" + extractPath + "SysGroupRelation.csv');");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void createIndexPersonID(Connection con) {
 		try {
 			con.createStatement().executeUpdate(
