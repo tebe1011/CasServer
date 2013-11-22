@@ -139,67 +139,34 @@ public class QueryBuilder {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		try {
 			Statement statement = con.createStatement();
-			String query =	"	SELECT 																						" +
-							"		S1.OID 																					" +
-							"		,DATEDIFF(DAY, '1.1.1990', E."+day+") AS 'Date' 										" +
-							"		,"+n+" AS Typ 																			" +
-							"		,S2.OID 																				" +
-							"		,A2.gwIsCompany 																		" +
-							"		,A2.gwIsContact 																		" +
-							"		,A2.gwIsEmployee 																		" +
-							"		,A2.Town1 																				" +
-							"		,A2.Country1 																			" +
-							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 											" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"0] E ON E.GGUID = R.GUID2 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER ON ER.TableGUID = E.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER2 ON ER2.TableGUID = ER.TableGUID	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON ER.OID = S2.OID 					" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID 	" +
-							"	WHERE (R.TableSign2 = '"+type+"') 															" +
-							"		AND ER.OID > 0 																			" +
-							"		AND ER.OID != ER2.OID																	" +																
-							"		AND ER.TableGUID NOT IN (	SELECT TableGUID 											" +	
-							"									FROM [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] 		" +			
-							"									Group by TableGUID 											" +			
-							"									HAVING COUNT(*) > 15) 										" +
-							"																								" +
-							"	UNION ALL 																					" +
-							"																								" +
-							"	SELECT 																						" +
-							"		S1.OID 																					" +
-							"		,DATEDIFF(DAY, '1.1.1990', E."+day+") AS 'Date' 										" +
-							"		,"+n+" AS Typ 																			" +
-							"		,S2.OID 																				" +
-							"		,A2.gwIsCompany 																		" +
-							"		,A2.gwIsContact 																		" +
-							"		,A2.gwIsEmployee 																		" +
-							"		,A2.Town1 																				" +
-							"		,A2.Country1 																			" +
-							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 											" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1  			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"0] E ON E.GGUID = R.GUID2 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER ON ER.TableGUID = E.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER2 ON ER2.TableGUID = ER.TableGUID	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroup] SG2 ON ER.OID = SG2.GID 					" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroupMember] SGM2 ON SGM2.GroupID = SG2.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON SGM2.MEMBERID = S2.GGUID 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID 	" +
-							"	WHERE (R.TableSign2 = '"+type+"') 															" +
-							"		AND ER.OID < 0 																			" +
-							"		AND ER.OID != ER2.OID																	" +
-							"		AND ER.TableGUID NOT IN (	SELECT TableGUID 											" +	
-							"									FROM [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] 		" +			
-							"									Group by TableGUID 											" +			
-							"									HAVING COUNT(*) > 15) 										" +
-							"	ORDER BY S1.OID																				";
+			String query =	"	SELECT 																					" +																						 
+							"		S1.OID 																						" +																					 
+							"		,DATEDIFF(DAY, '1.1.1990', E."+day+") AS 'Date' 											" +										 
+							"		,"+n+" AS Typ  																				" +																			 
+							"		,CASE WHEN ER2.OID < 0 THEN S2.OID ELSE ER2.[OID]  END AS OID 								" +																				 																			 
+							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 												" +											 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 		" +	 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1 				" + 			 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"0] E ON E.GGUID = R.GUID2 				" +			 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER ON ER.TableGUID = E.GGUID 			" +	 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER2 ON ER2.TableGUID = ER.TableGUID		" + 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroup] SG2 ON ER2.OID = SG2.GID 				" +				 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroupMember] SGM2 ON SGM2.GroupID = SG2.GGUID 	" +	 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON SGM2.MEMBERID = S2.GGUID			" + 			 
+							"	WHERE (R.TableSign2 = '"+type+"') 																" +
+							"		AND E."+day+" IS NOT NULL																	" +
+							"		AND ER.OID <> 0 																			" +
+							"		AND ER2.OID <> 0  																			" +																			 
+							"		AND ER.OID != ER2.OID 																		" +																	 																 
+							"		AND ER.TableGUID NOT IN (	SELECT TableGUID  												" +											 	
+							"									FROM [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel]  			" +		 			
+							"									Group by TableGUID  											" +											 			
+							"									HAVING COUNT(*) > 15)  											" +										 
+							"	ORDER BY S1.OID 																				";
 			ResultSet rsSET = statement.executeQuery(query);
 			while(rsSET.next()) {
 				result.add(new String[] { rsSET.getString(1), rsSET.getString(2), rsSET.getString(3),
-						rsSET.getString(4), rsSET.getString(5), rsSET.getString(6), rsSET.getString(7),
-						rsSET.getString(8), rsSET.getString(9)});
+						rsSET.getString(4), "null", "null", "null", "null", "null"});
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -211,102 +178,64 @@ public class QueryBuilder {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		try {
 			Statement statement = con.createStatement();
-			String query =	"	SELECT 																						" +
-							"		S1.OID																					" +
-							"		,DATEDIFF(DAY, '1.1.1990', E.start_dt) AS 'Date' 										" +
-							"		,"+n+" AS Typ 																			" +
-							"		,S2.OID																					" +
-							"		,A2.gwIsCompany 																		" +
-							"		,A2.gwIsContact 																		" +
-							"		,A2.gwIsEmployee 																		" +
-							"		,A2.Town1 																				" +
-							"		,A2.Country1 																			" +
-							"		,DATEDIFF(d, start_dt, End_dt) AS DIFF 													" +
-							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 											" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"0] E ON E.GGUID = R.GUID2 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER ON ER.TableGUID = E.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER2 ON ER2.TableGUID = ER.TableGUID	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON ER.OID = S2.OID 					" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID 	" +
-							"	WHERE (R.TableSign2 = '"+type+"') 															" +
-							"		AND ER.OID > 0 																			" +
-							"		AND ER.OID != ER2.OID																	" +
-							"		AND ER.TableGUID NOT IN (	SELECT TableGUID 											" +	
-							"									FROM [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] 		" +			
-							"									Group by TableGUID 											" +			
-							"									HAVING COUNT(*) > 15) 										" +
-							"		AND DATEDIFF(d, E.start_dt, E.End_dt) > 1 AND DATEDIFF(d, E.start_dt, E.End_dt) < 30 	" +
-							"																								" +
-							"	UNION ALL 																					" +
-							"																								" +
-							"	SELECT 																						" +
-							"		S1.OID, 																				" +
-							"		DATEDIFF(DAY, '1.1.1990', E.start_dt) AS 'Date' 										" + 
-							"		,"+n+" AS Typ 																			" +
-							"		,S2.OID 																				" +
-							"		,A2.gwIsCompany 																		" +
-							"		,A2.gwIsContact 																		" +
-							"		,A2.gwIsEmployee 																		" +
-							"		,A2.Town1 																				" +
-							"		,A2.Country1 																			" +
-							"		,DATEDIFF(d, start_dt, End_dt) AS DIFF 													" +
-							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 											" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1  			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"0] E ON E.GGUID = R.GUID2 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER ON ER.TableGUID = E.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER2 ON ER2.TableGUID = ER.TableGUID	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroup] SG2 ON ER.OID = SG2.GID 					" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroupMember] SGM2 ON SGM2.GroupID = SG2.GGUID 	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON SGM2.MEMBERID = S2.GGUID 			" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID 	" +
-							"	WHERE (R.TableSign2 = '"+type+"') 															" +
-							"		AND ER.OID < 0 																			" +
-							"		AND ER.OID != ER2.OID																	" +
-							"		AND ER.TableGUID NOT IN (	SELECT TableGUID 											" +	
-							"									FROM [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] 		" +			
-							"									Group by TableGUID 											" +			
-							"									HAVING COUNT(*) > 15) 										" +
-							"		AND DATEDIFF(d, E.start_dt, E.End_dt) > 1 AND DATEDIFF(d, E.start_dt, E.End_dt) < 30	";
+			String query =	"	SELECT 																							" +																						 
+							"		S1.OID 																						" +																					 
+							"		,DATEDIFF(DAY, '1.1.1990', E.start_dt) AS 'Date' 											" +										 
+							"		,"+n+" AS Typ  																				" +																			 
+							"		,CASE WHEN ER2.OID < 0 THEN S2.OID ELSE ER2.[OID]  END AS OID 								" +
+							"		,DATEDIFF(d, start_dt, End_dt) AS DIFF 														" +	
+							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 												" +											 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 		" +	 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1 				" + 			 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"0] E ON E.GGUID = R.GUID2 				" +			 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER ON ER.TableGUID = E.GGUID 			" +	 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel] ER2 ON ER2.TableGUID = ER.TableGUID		" + 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroup] SG2 ON ER2.OID = SG2.GID 				" +				 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroupMember] SGM2 ON SGM2.GroupID = SG2.GGUID 	" +	 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON SGM2.MEMBERID = S2.GGUID			" + 			 
+							"	WHERE (R.TableSign2 = '"+type+"') 																" + 															 
+							"		AND ER.OID <> 0 																			" +
+							"		AND ER2.OID <> 0  																			" +																			 
+							"		AND ER.OID != ER2.OID 																		" +																	 																 
+							"		AND ER.TableGUID NOT IN (	SELECT TableGUID  												" +											 	
+							"									FROM [genesisWorldDB_Haus_x5].[dbo].["+table+"ORel]  			" +		 			
+							"									Group by TableGUID  											" +											 			
+							"									HAVING COUNT(*) > 15)  											" +
+							"		AND DATEDIFF(d, E.start_dt, E.End_dt) > 1 AND DATEDIFF(d, E.start_dt, E.End_dt) < 30 		" +	
+							"	ORDER BY S1.OID 																				";
 			ResultSet rsSET = statement.executeQuery(query);
 			while(rsSET.next()) {
-				result.add(new String[] { rsSET.getString(1), rsSET.getString(2), rsSET.getString(3),
-						rsSET.getString(4), rsSET.getString(5), rsSET.getString(6), rsSET.getString(7),
-						rsSET.getString(8), rsSET.getString(9), rsSET.getString(10)});
+				result.add(new String[] { rsSET.getString(1), rsSET.getString(2), rsSET.getString(3), rsSET.getString(4),
+						rsSET.getString(5), "null", "null", "null", "null", "null"});
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		csvBuilder.buildTableRelation("Splitted_"+table, result);
+		csvBuilder.buildTransformMultipleAppointment(result);
 	}
 	
 	public void buildAppointmentTimeShifts(Connection con, String n) {
 		ArrayList<String[]> result = new ArrayList<String[]>();
 		try {
 			Statement statement = con.createStatement();
-			String query = 	"	SELECT 																							" +
-							"		S1.OID																		 				" +
-							"		,DATEDIFF(DAY, '1.1.1990', replace(C.OldFieldValue, ',', ' ')) AS 'Date' 					" +
-							"		,"+n+" AS Typ 																				" +
-							"		,S2.OID 																					" +
-							"		,A2.gwIsCompany 																			" +
-							"		,A2.gwIsContact 																			" +
-							"		,A2.gwIsEmployee 																			" +
-							"		,A2.Town1 																					" +
-							"		,A2.Country1 																				" +
-							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 												" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID			" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1 				" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENT0] E ON E.GGUID = R.GUID2 					" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[ChangeLogBook] C ON C.TableGUID = E.GGUID				" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] ER ON ER.TableGUID = E.GGUID			" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] ER2 ON ER2.TableGUID = ER.TableGUID	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON ER.OID = S2.OID 						" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID			" +
+			
+			String query =	"	SELECT 																							" +																						 
+							"		S1.OID 																						" +																					 
+							"		,DATEDIFF(DAY, '1.1.1990', replace(C.OldFieldValue, ',', ' ')) AS 'Date' 					" +									 
+							"		,"+n+" AS Typ  																				" +																			 
+							"		,CASE WHEN ER2.OID < 0 THEN S2.OID ELSE ER2.[OID]  END AS OID 								" +																				 																			 
+							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 												" +											 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 		" +	 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1 				" + 			 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENT0] E ON E.GGUID = R.GUID2				" +
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[ChangeLogBook] C ON C.TableGUID = E.GGUID 				" +			 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] ER ON ER.TableGUID = E.GGUID 			" +	 
+							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] ER2 ON ER2.TableGUID = ER.TableGUID	" + 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroup] SG2 ON ER2.OID = SG2.GID 				" +				 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroupMember] SGM2 ON SGM2.GroupID = SG2.GGUID 	" +	 
+							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON SGM2.MEMBERID = S2.GGUID			" + 			 
 							"	WHERE (R.TableSign2 = 'APP') 																	" +
-							"		AND ER.OID > 0																				" +
+							"		AND ER.OID <> 0																				" +
 							"		AND ER.OID != ER2.OID																		" +
 							"		AND ER.TableGUID NOT IN (	SELECT TableGUID 												" +	
 							"									FROM [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] 			" +			
@@ -318,47 +247,11 @@ public class QueryBuilder {
 							"		AND convert(varchar, C.UpdateTimestamp, 21) > replace(C.OldFieldValue, ',', ' ') 			" +
 							"		AND convert(varchar, C.UpdateTimestamp, 21) < replace(C.NewFieldValue, ',', ' ') 			" +
 							"		AND substring(C.OldFieldValue, 1, 10) <> substring(C.NewFieldValue, 1, 10) 					" +
-							"																									" +
-							" 	UNION ALL 																						" +
-							"																									" +
-							"	SELECT 																							" +
-							"		S1.OID 																						" +
-							"		,DATEDIFF(DAY, '1.1.1990', replace(C.OldFieldValue, ',', ' ')) AS 'Date' 					" +
-							"		,"+n+" AS Typ	 																			" +
-							"		,S2.OID																						" +
-							"		,A2.gwIsCompany																				" +
-							"		,A2.gwIsContact																				" +
-							"		,A2.gwIsEmployee																			" +
-							"		,A2.Town1																					" +
-							"		,A2.Country1 																				" +
-							"	FROM [genesisWorldDB_Haus_x5].[dbo].[SysUser] S1 												" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A1 ON A1.SysUserGUID = S1.GGUID 		" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[TableRelation] R ON A1.GGUID = R.GUID1 				" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENT0] E ON E.GGUID = R.GUID2 					" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[ChangeLogBook] C ON C.TableGUID = E.GGUID 				" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] ER ON ER.TableGUID = E.GGUID 			" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] ER2 ON ER2.TableGUID = ER.TableGUID	" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroup] SG2 ON ER.OID = SG2.GID 						" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysGroupMember] SGM2 ON SGM2.GroupID = SG2.GGUID 		" +
-							"		JOIN [genesisWorldDB_Haus_x5].[dbo].[SysUser] S2 ON SGM2.MEMBERID = S2.GGUID 				" +
-							"		LEFT JOIN [genesisWorldDB_Haus_x5].[dbo].[ADDRESS0] A2 ON A2.SysUserGUID = S2.GGUID 		" +
-							"	WHERE (R.TableSign2 = 'APP') AND ER.OID < 0 													" +
-							"		AND ER.OID != ER2.OID																		" +
-							"		AND ER.TableGUID NOT IN (	SELECT TableGUID 												" +	
-							"									FROM [genesisWorldDB_Haus_x5].[dbo].[APPOINTMENTORel] 			" +			
-							"									Group by TableGUID 												" +			
-							"									HAVING COUNT(*) > 40) 											" +
-							"		AND C.TableName = 'APPOINTMENT' 															" +
-							"		AND C.FieldName = 'START_DT' 																" +
-							"		AND C.ChangeType = 'U' 																		" +
-							"		AND convert(varchar, C.UpdateTimestamp, 21) > replace(C.OldFieldValue, ',', ' ') 			" +
-							"		AND convert(varchar, C.UpdateTimestamp, 21) < replace(C.NewFieldValue, ',', ' ') 			" +
-							"		AND substring(C.OldFieldValue, 1, 10) <> substring(C.NewFieldValue, 1, 10)					";
+							"	ORDER BY S1.OID 																				";
 			ResultSet rsSET = statement.executeQuery(query);
 			while(rsSET.next()) {
-				result.add(new String[] { rsSET.getString(1), rsSET.getString(2), rsSET.getString(3),
-						rsSET.getString(4), rsSET.getString(5), rsSET.getString(6), rsSET.getString(7),
-						rsSET.getString(8), rsSET.getString(9)});
+				result.add(new String[] { rsSET.getString(1), rsSET.getString(2), rsSET.getString(3), rsSET.getString(4),
+						"null", "null", "null", "null", "null"});
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

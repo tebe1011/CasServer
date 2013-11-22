@@ -73,13 +73,21 @@ public class CSVBuilder {
 	
 	public void buildTransformMultipleAppointment(ArrayList<String[]> data) {
 		try {
-			String basePath = System.getProperty("catalina.base") + "/CasAnalyticsData/Transform";
+			String basePath = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract";
 			File dictionaries = new File(basePath);
 			dictionaries.mkdir();
 			File file = new File(basePath + "/S_APPOINTMENT.csv");
 			CSVWriter writer = new CSVWriter(new FileWriter(file));
 			for (int i = 0; i < data.size(); ++i) {
-				writer.writeNext(data.get(i));
+				String oid1 = data.get(i)[0];
+				int days = Integer.parseInt(data.get(i)[1]);
+				String typ = data.get(i)[2];
+				String oid2 = data.get(i)[3];
+				for(int j = 0; j < Integer.parseInt(data.get(i)[4]); ++j) {
+					String day = String.valueOf(days + i);
+					writer.writeNext(new String[] {oid1, day, typ, oid2,
+							"null", "null", "null", "null", "null"});
+				}
 			}
 			writer.close();
 		} catch (IOException e) {

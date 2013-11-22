@@ -76,9 +76,9 @@ public class Transform {
 		result.trimToSize();
 		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "EMailStore_transf_replaced.csv"));
 		result.trimToSize();
-		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "Splitted_APPOINTMENTORel_transf.csv"));
-		result.trimToSize();
 		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "Old_APPOINTMENTORel_transf.csv"));
+		result.trimToSize();
+		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "Old_APPOINTMENT_transf_replaced.csv"));
 		result.trimToSize();
 		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "APPOINTMENTORel_transf.csv"));
 		result.trimToSize();
@@ -90,9 +90,9 @@ public class Transform {
 		result.trimToSize();
 		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "gwPhoneCallORel_transf.csv"));
 		result.trimToSize();
-		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "Old_APPOINTMENTORel_transf.csv"));
-		result.trimToSize();
 		result.addAll(csv.readFromCSVFileAsStringArray(TPATH + "S_APPOINTMENTORel.csv"));
+		result.trimToSize();
+		result.addAll(csv.readFromCSVFileAsStringArray(EPATH + "S_APPOINTMENT_transf_replaced.csv"));
 		result.trimToSize();
 		
 		System.out.println("geklappt");
@@ -206,11 +206,13 @@ public class Transform {
 		
 		Map<String, Integer[]> sysUserWithAdress = csv.readFromCSVFileAsStringIntegerArrayMap(0, TPATH + "SysUserWithAdress.csv");
 		ArrayList<String[]> mainData = csv.readFromCSVFileAsStringArray(inputPath);
-
-		System.out.println(mainData.get(0));
 		
 		for(int i = 0; i < mainData.size(); ++i) {
 			if(mainData.get(i)[3] == null || mainData.get(i)[0].equals("") || mainData.get(i)[1].equals("") || mainData.get(i)[2].equals("") || mainData.get(i)[3].equals("")){
+				mainData.remove(i);
+				i -=1;
+			}
+			else if(Integer.parseInt(mainData.get(i)[0]) == Integer.parseInt(mainData.get(i)[3])){
 				mainData.remove(i);
 				i -=1;
 			}

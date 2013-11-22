@@ -25,7 +25,6 @@ public class JerseyServer {
 	private ConnectorJDBC jdbcConnectorMSSQL = new ConnectorJDBC();
 	private Transform transform = new Transform();
 	private Load loader = new Load();
-	private RespondQuery respondQuery = new RespondQuery();
 	private Logik logik = new Logik();
 	
 	private String EPATH = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract/";
@@ -37,31 +36,69 @@ public class JerseyServer {
 		
 		System.out.println("EXTRACT STARTED");
 		
-		dictionarieBuilder.createNameDictionarie(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.createTown1Dictionarie(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.createCountry1Dictionarie(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.createGroupDictionarie(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.createSysUserDictionarie(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.createClientUser(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.createNameDictionarie(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.createTown1Dictionarie(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.createCountry1Dictionarie(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.createGroupDictionarie(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.createSysUserDictionarie(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.createClientUser(jdbcConnectorMSSQL.getCon());
+//		
+//		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "DOCUMENT", "DOC", "InsertTimestamp", "1");
+//		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "EMailStore", "EML", "SendDate", "2");
+//		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP", "start_dt", "3");
+//		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "start_dt", "4");
+//		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC", "InsertTimestamp", "5");
+//		
+//		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP", "3");
+//		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC", "5");
+//		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "4");	
+//		dictionarieBuilder.buildAppointmentTimeShifts(jdbcConnectorMSSQL.getCon(), "3");
+//		
+//		dictionarieBuilder.buildGetGroupChanges(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.buildUserGGUID(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.buildGroupGGUID(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.buildSysGroupRelation(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.buildSysUserWithAdress(jdbcConnectorMSSQL.getCon());
 		
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "DOCUMENT", "DOC", "InsertTimestamp", "1");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "EMailStore", "EML", "SendDate", "2");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP", "start_dt", "3");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "start_dt", "4");
-		dictionarieBuilder.buildObjektData(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC", "InsertTimestamp", "5");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "DOCUMENT", "InsertTimestamp", "1");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "EMailStore", "SendDate", "2");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "start_dt", "3");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "start_dt", "4");
+//		dictionarieBuilder.build0RelData(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "InsertTimestamp", "5");
 		
-		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "APPOINTMENT", "APP", "3");
-		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "gwPhoneCall", "PHC", "5");
-		dictionarieBuilder.buildDataWhichGoesOverADay(jdbcConnectorMSSQL.getCon(), "GWOpportunity", "GWOP", "4");
+//		dictionarieBuilder.build0RelAppointmentDayShifts(jdbcConnectorMSSQL.getCon());
+//		dictionarieBuilder.build0RelAppointmentMultipleDays(jdbcConnectorMSSQL.getCon());
+
 		
-		dictionarieBuilder.buildAppointmentTimeShifts(jdbcConnectorMSSQL.getCon(), "3");
-		dictionarieBuilder.build0RelAppointmentDayShifts(jdbcConnectorMSSQL.getCon());
+//		transform.addAdressToCSV(4, EPATH + "DOCUMENT.csv", EPATH + "DOCUMENT_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "EMailStore.csv", EPATH + "EMailStore_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "APPOINTMENT.csv", EPATH + "APPOINTMENT_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "GWOpportunity.csv", EPATH + "GWOpportunity_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "gwPhoneCall.csv", EPATH + "gwPhoneCall_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "Old_APPOINTMENT.csv", EPATH + "Old_APPOINTMENT_transf.csv");
+//		transform.addAdressToCSV(4, EPATH + "S_APPOINTMENT.csv", EPATH + "S_APPOINTMENT_transf.csv");
 		
-		dictionarieBuilder.buildGetGroupChanges(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.buildUserGGUID(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.buildGroupGGUID(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.buildSysGroupRelation(jdbcConnectorMSSQL.getCon());
-		dictionarieBuilder.buildSysUserWithAdress(jdbcConnectorMSSQL.getCon());
+		transform.addAdressToCSV(4, EPATH + "DOCUMENTORel.csv", EPATH + "DOCUMENTORel_transf.csv");
+		transform.addAdressToCSV(4, EPATH + "EMailStoreORel.csv", EPATH + "EMailStoreORel_transf.csv");
+		transform.addAdressToCSV(4, EPATH + "APPOINTMENTORel.csv", EPATH + "APPOINTMENTORel_transf.csv");
+		transform.addAdressToCSV(4, EPATH + "GWOpportunityORel.csv", EPATH + "GWOpportunityORel_transf.csv");
+		transform.addAdressToCSV(4, EPATH + "gwPhoneCallORel.csv", EPATH + "gwPhoneCallORel_transf.csv");
+		
+		transform.addAdressToCSV(4, EPATH + "Old_APPOINTMENTORel.csv", EPATH + "Old_APPOINTMENTORel_transf.csv");
+		transform.addAdressToCSV(5, EPATH + "Splitted_APPOINTMENTORel.csv", EPATH + "Splitted_APPOINTMENTORel_transf.csv");
+//		transform.transformMultipleAppointmentORel();
+		
+//		transform.replaceTownAndCountry(EPATH + "DOCUMENT_transf.csv", EPATH + "DOCUMENT_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "EMailStore_transf.csv", EPATH + "EMailStore_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "APPOINTMENT_transf.csv", EPATH + "APPOINTMENT_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "GWOpportunity_transf.csv", EPATH + "GWOpportunity_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "gwPhoneCall_transf.csv", EPATH + "gwPhoneCall_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "Old_APPOINTMENT_transf.csv", EPATH + "Old_APPOINTMENT_transf_replaced.csv");
+//		transform.replaceTownAndCountry(EPATH + "S_APPOINTMENT_transf.csv", EPATH + "S_APPOINTMENT_transf_replaced.csv");
+		
+//		transform.replaceTownAndCountry(EPATH + "Old_APPOINTMENT.csv", EPATH + "Old_APPOINTMENT_replaced.csv");
+//		transform.replaceTownAndCountry(TPATH + "S_APPOINTMENT.csv", TPATH + "S_APPOINTMENT_replaced.csv");
+
 		
 		System.out.println("EXTRACT ENDED");
 		
@@ -172,7 +209,7 @@ public class JerseyServer {
 //		
 //		transform.replaceTownAndCountry(EPATH + "Old_APPOINTMENT.csv", EPATH + "Old_APPOINTMENT_replaced.csv");
 //		transform.replaceTownAndCountry(TPATH + "S_APPOINTMENT.csv", TPATH + "S_APPOINTMENT_replaced.csv");
-		dictionarieBuilder.buildSysGroupRelation(jdbcConnectorMSSQL.getCon());
+
 		System.out.println("Step6 ENDED");
 		
 		return "";

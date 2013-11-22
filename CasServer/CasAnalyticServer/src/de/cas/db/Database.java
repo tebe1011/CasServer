@@ -37,6 +37,7 @@ public class Database {
 		
 		loader.createIndexPersonID(Database.con);
 		loader.createIndexDateDay(Database.con);
+		loader.createIndexLinkedPerson(Database.con);
 		
 		System.out.println("LOAD ENDED");
 	}

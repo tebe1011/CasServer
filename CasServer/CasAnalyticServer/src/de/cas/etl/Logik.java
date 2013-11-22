@@ -24,13 +24,20 @@ public class Logik {
 
 	private String whereJoin = "";
 	private Map<String, ArrayList<String>> groupRelation;
+	private Map<String,String> sysGroup;
 	private CSVReaderWriter csv;
 	private String EPATH = System.getProperty("catalina.base") + "/CasAnalyticsData/Extract/";
 	private String TPATH = System.getProperty("catalina.base") + "/CasAnalyticsData/Transform/";
+	private Map<String, ArrayList<String[]>> groupHistory;
+	
+	private long startFinal;
+	private long endFinal;
 	
 	public Logik() {
 		this.csv = new CSVReaderWriter();
+		this.sysGroup = csv.readFromCSVFileAsStringStringMapI0(EPATH + "SysGroup.csv");
 		this.groupRelation = csv.readFromCSVFileAsStringStringArrayList(0, EPATH + "SysGroupRelation.csv");
+		this.groupHistory = csv.readFromCSVFileAsStringStringArrayListArray(TPATH + "GroupHistory.csv");
 	}
 
 	public JSONObject buildQuery(Connection con, JSONObject json) {
@@ -199,11 +206,17 @@ public class Logik {
 //						"ORDER BY Qsum DESC " +
 //						"LIMIT 0, "+range+" ";
 //		}
-	
+		
+		
 		JSONObject result = new JSONObject();
 		try {
 			Statement statement = con.createStatement();
 			ResultSet rsSET = statement.executeQuery(query);
+			zstNachher = System.nanoTime();
+			long timeTaken = (zstNachher - zstVorher)/1000/1000;
+			result.put("respond", timeTaken);
+			System.out.println("Zeit benötigt: " + ((zstNachher - zstVorher)/1000) + " us - " + ((zstNachher - zstVorher)/1000/1000) + " ms");
+			
 			while (rsSET.next()) {
 				JSONArray  container = new JSONArray();
 				container.put(rsSET.getInt(1));
@@ -220,26 +233,12 @@ public class Logik {
 			e.printStackTrace();
 		}
 		
-//		JSONObject result = new JSONObject();
-//		try {
-//			Statement statement = con.createStatement();
-//			ResultSet rsSET = statement.executeQuery(query);
-//			while (rsSET.next()) {
-//				result.put(rsSET.getString(2), rsSET.getInt(1));
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} catch (JSONException e) {
-//			e.printStackTrace();
-//		}
-		
 		// Aufruf lange dauernder Prozesse
 
 		whereJoin = "";
-		
-		zstNachher = System.nanoTime();
-		System.out.println("Zeit benötigt: " + ((zstNachher - zstVorher)/1000) + " us - " + ((zstNachher - zstVorher)/1000/1000) + " ms");
-		
+		startFinal = 0;
+		endFinal = 0;
+
 		return result;
 	}
 
@@ -277,8 +276,8 @@ public class Logik {
 			Date dateEnd = formatter.parse(end);
 			Date dateBeginn = formatter.parse("MON JAN 01 00:00:00 CET 1990");
 
-			long startFinal = getDateDiff(dateBeginn, dateStart, TimeUnit.DAYS);
-			long endFinal = getDateDiff(dateBeginn, dateEnd, TimeUnit.DAYS);
+			startFinal = getDateDiff(dateBeginn, dateStart, TimeUnit.DAYS);
+			endFinal = getDateDiff(dateBeginn, dateEnd, TimeUnit.DAYS);
 
 			container.add("(DateDay >= " + startFinal + " AND DateDay <= " + endFinal + ")");
 		} catch (JSONException e) {
@@ -430,23 +429,36 @@ public class Logik {
 	}
 
 	private ArrayList<String> createWhereGroup(Connection con, JSONObject json) {
-		
-		ArrayList<String> people = new ArrayList<String>();
+		ArrayList<String> data = new ArrayList<String>();
 		try {
 			if (json.getBoolean("CheckBox_Group") == true) {
 				if (!json.getString("OptionGroup_Group").equals("[]")) {
 					String value = json.getString("OptionGroup_Group").replace("[", "");
 					value = value.replace("]", "");
-					String[] values = value.split(",");
+					String[] values = value.split(",");				
 					for (int i = 0; i < values.length; ++i) {
+						ArrayList<String> people = new ArrayList<String>();
 						ArrayList<String> c = groupRelation.get(values[i]);
+						ArrayList<String[]> gH = groupHistory.get(sysGroup.get(values[i]));
 						if(c != null) {
 							for(String s : c) {
 								if(!people.contains(s)) {
-									System.out.println(s);
-									people.add("LinkedPersonID != " + s);
+									people.add(s);
 								}
 							}	
+							for(int j = 0; j < gH.size(); ++j) {
+								if(endFinal < Integer.parseInt(gH.get(i)[1])) {
+									if(gH.get(i)[2].equals("1")) {
+										people.remove(gH.get(i)[3]);
+									}
+									else {
+										people.add(gH.get(i)[3]);
+									}
+								}
+							}
+						}
+						for(String s : people) {
+							data.add("LinkedPersonID != " + s);
 						}
 					}
 				}
@@ -454,7 +466,7 @@ public class Logik {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return people;
+		return data;
 	}
 
 	public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {

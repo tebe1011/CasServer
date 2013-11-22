@@ -88,7 +88,16 @@ public class Load {
 	public void createIndexDateDay(Connection con) {
 		try {
 			con.createStatement().executeUpdate(
-					"CREATE INDEX IDXDATEDAY ON DATA(userID, DateDay);");
+					"CREATE INDEX IDXDATEDAY ON DATA(DateDay);");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void createIndexLinkedPerson(Connection con) {
+		try {
+			con.createStatement().executeUpdate(
+					"CREATE INDEX IDXLINKEDPERSON ON DATA(LinkedPersonID);");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
